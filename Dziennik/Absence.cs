@@ -6,22 +6,23 @@ using System.Threading.Tasks;
 
 namespace Dziennik
 {
-    class Nieobecność
+    class Absence
     {
-        private int ID;
+        private int _id;
         private DateTime date;
 
-        public Nieobecność(int nID, DateTime nDate)
-        {
-            this.ID = nID;
-            this.date = nDate;
-        }
 
-        public int GetID()
-        {
-            return ID;
-        }
 
+        public Absence(int _id, DateTime date)
+        {
+            this._id = _id;
+            this.date = date;
+        }
+        public int Id 
+        { 
+            get => _id; 
+            set => _id = value; 
+        }
         public string GetDate()
         {
             return date.ToString("d");

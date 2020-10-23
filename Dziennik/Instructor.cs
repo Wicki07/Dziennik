@@ -6,25 +6,19 @@ using System.Threading.Tasks;
 
 namespace Dziennik
 {
-    public class Prowadzacy
+    public class Instructor : Person
     {
-        private string name;
-        private int id;
+
         private bool check;
-        public Prowadzacy (int nId, string nName)
+        public Instructor()
         {
-            this.id = nId;
-            this.name = nName;
+
+        }
+        public Instructor(int id, string name) :base(id, name)
+        {
             this.check = false;
         }
-        public string ToSave()
-        {
-            return this.name;
-        }
-        public int GetId()
-        {
-            return this.id;
-        }
+
         public void Checked()
         {
             this.check = true;

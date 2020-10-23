@@ -17,62 +17,24 @@ namespace Dziennik
     public partial class Godziny : Form
     {
 		List<Label> labels = new List<Label>();
-		List<Uczen> uczniowie = new List<Uczen>();
+		List<Person> people = new List<Person>();
 		List<CheckBox> checkBoxes = new List<CheckBox>();
-		List<Nieobecność> nieobecnosci = new List<Nieobecność>();
+		List<Absence> absences = new List<Absence>();
 		string connectionString;
-		DateTime time = new DateTime(2020, 1, 1, 8, 0, 0);
-		Prowadzacy nProwadzacy;
-		public Godziny(List<Prowadzacy> prowadzacy)
+
+		public Godziny(Instructor instructor)
         {
             InitializeComponent();
-			button1.Click += new System.EventHandler(this.Checklist);
-			foreach (Prowadzacy prowadzac in prowadzacy)
-            {
-				if(prowadzac.IsChecked())
-                {
-					nProwadzacy = prowadzac;
-                }
-            }
-			ReadDatabaseUczniowie();
+			button1.Click += new EventHandler(this.Checklist);
+
+			people = Connection.ReadDatabase(Program.Person.Student, instructor);
 			CreateLabels();
-		}
-		private string SQLRequest()
-        {
-			string request;
-
-			request = "Select Uczniowie.Id, Imie, Nazwisko,Uczniowie.Poziom, Wiek, ZajeciaID From Uczniowie JOIN Zajecia ON ZajeciaID = Zajecia.Id AND Zajecia.ProwadzacyID = " + nProwadzacy.GetId()
-				+ " AND Zajecia.Godzina = '" + time.ToString("T") + "'";
-			return request;
-        }
-		private void ReadDatabaseUczniowie()
-		{
-			string result;
-			connectionString = ConfigurationManager.ConnectionStrings["Dziennik.Properties.Settings.Database1ConnectionString"].ConnectionString;
-			using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\Database1.mdf;Integrated Security=True"))
-			using (SqlDataAdapter adapter = new SqlDataAdapter(SQLRequest(), connection))
-			{
-				DataTable dataTable = new DataTable();
-				adapter.Fill(dataTable);
-				result = string.Join(Environment.NewLine, dataTable.Rows.OfType<DataRow>().Select(x => string.Join(";", x.ItemArray)));
-				connection.Close();
-			}
-			using (StringReader reader = new StringReader(result))
-			{
-				string line = "";
-				while ((line = reader.ReadLine()) != null)
-				{
-					string[] s = line.Split(';');
-					uczniowie.Add(new Uczen(int.Parse(s[0]), s[1] + " " + s[2], int.Parse(s[3]), int.Parse(s[4]), int.Parse(s[5])));
-
-				}
-			}
 		}
 		private void CreateLabels()
 		{
 			int position = 100;
 			int counter = 0;
-			foreach (Uczen uczen in uczniowie)
+			foreach (Student student in people)
 			{
 				labels.Add(new Label());
 			}
@@ -80,17 +42,17 @@ namespace Dziennik
 			foreach (Label label in labels)
 			{
 				label.AutoSize = true;
-				label.Font = new System.Drawing.Font("Arial", 16.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-				label.Location = new System.Drawing.Point(100, position);
-				label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-				label.Size = new System.Drawing.Size(186, 40);
+				label.Font = new Font("Arial", 16.25F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(238)));
+				label.Location = new Point(100, position);
+				label.Margin = new Padding(2, 0, 2, 0);
+				label.Size = new Size(186, 40);
 				label.TabIndex = 5;
-				label.Text = uczniowie[counter].ToString();
+				label.Text = people[counter].ToString();
 				this.Controls.Add(label);
 				checkBoxes.Add(new CheckBox());
 				checkBoxes[counter].AutoSize = true;
-				checkBoxes[counter].Location = new System.Drawing.Point(520, position);
-				checkBoxes[counter].Size = new System.Drawing.Size(80, 17);
+				checkBoxes[counter].Location = new Point(520, position);
+				checkBoxes[counter].Size = new Size(80, 17);
 				checkBoxes[counter].TabIndex = 1;
 				checkBoxes[counter].UseVisualStyleBackColor = true;
 				this.Controls.Add(checkBoxes[counter]);
@@ -105,34 +67,12 @@ namespace Dziennik
 			{
 				if (checkBox.Checked)
 				{
-					nieobecnosci.Add(new Nieobecność(uczniowie[counter].GetID(), DateTime.Now));
+					absences.Add(new Absence(people[counter].Id, DateTime.Now));
 
 				}
 				counter++;
 			}
-			connectionString = ConfigurationManager.ConnectionStrings["Dziennik.Properties.Settings.Database1ConnectionString"].ConnectionString;
-			using (SqlConnection connection = new SqlConnection(connectionString))
-			{
-				String query = "INSERT INTO Nieobecnosci (UczenId,nData) VALUES (@id,@data)";
-				foreach (Nieobecność nieobecnosc in nieobecnosci)
-				{
-					button1.Text = "zrobionegit";
-					using (SqlCommand command = new SqlCommand(query, connection))
-					{
-						command.Connection.Open();
-						command.Parameters.AddWithValue("@id", nieobecnosc.GetID());
-						command.Parameters.AddWithValue("@data", nieobecnosc.GetDate());
-
-						Console.WriteLine(nieobecnosc.GetID());
-						Console.WriteLine(nieobecnosc.GetDate());
-						int result = command.ExecuteNonQuery();
-						connection.Close();
-
-
-					}
-				}
-			}
-			
+			Connection.WriteToDatabase(absences);
 		}
 	}
 }

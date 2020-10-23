@@ -17,70 +17,44 @@ namespace Dziennik
     public partial class Form1 : Form
     {
 		List<Label> labels = new List<Label>();
-		List<Prowadzacy> prowadzacy = new List<Prowadzacy>();
-		string connectionString;
-
-		public Form1()
+		List<Person> people = new List<Person>();
+		public Form1(Program.Person person)
         {
             InitializeComponent();
-			ReadDatabaseProwadzacy();
+			people = Connection.ReadDatabase(Program.Person.Instructor,new Instructor());
 			CreateLabels();
-
 		}
 
 		private void CreateLabels()
         {
 			int position = 300;
 			int counter = 0;
-			foreach (Prowadzacy prowadzacy in prowadzacy)
+			foreach (var people in people)
             {
 				labels.Add(new Label());
             }
 			foreach(Label label in labels)
             {
 				label.AutoSize = true;
-				label.Font = new System.Drawing.Font("Arial", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-				label.Location = new System.Drawing.Point(100, position);
-				label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-				label.Size = new System.Drawing.Size(186, 50);
+				label.Font = new Font("Arial", 26.25F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(238)));
+				label.Location = new Point(100, position);
+				label.Margin = new Padding(2, 0, 2, 0);
+				label.Size = new Size(186, 50);
 				label.TabIndex = 5;
-				label.Text = prowadzacy[counter].ToSave();
-				label.Click += new System.EventHandler(this.ProwadzacyChoice);
+				label.Text = people[counter].ToString();
+				label.Click += new EventHandler(this.ProwadzacyChoice);
 				counter++;
 				position += 60;
 				this.Controls.Add(label);
 			}
 		}
-		private void ReadDatabaseProwadzacy()
-        {
-			string result;
-			connectionString = ConfigurationManager.ConnectionStrings["Dziennik.Properties.Settings.Database1ConnectionString"].ConnectionString;
-			using (SqlConnection connection = new SqlConnection(connectionString))
-			using (SqlDataAdapter adapter = new SqlDataAdapter("SELECT * FROM Nauczyciele", connection))
-			{
-				DataTable dataTable = new DataTable();
-				adapter.Fill(dataTable);
-				result = string.Join(Environment.NewLine, dataTable.Rows.OfType<DataRow>().Select(x => string.Join(";", x.ItemArray)));
-				connection.Close();
-			}
-			using (StringReader reader = new StringReader(result))
-			{
-				string line = "";
-				while ((line = reader.ReadLine()) != null)
-				{
-					string[] s = line.Split(';');
-					prowadzacy.Add(new Prowadzacy(int.Parse(s[0]), s[1] + " " + s[2]));
 
-				}
-			}
-		}
-
-		private void ProwadzacyChoice(object sender, EventArgs e)
+		public void ProwadzacyChoice(object sender, EventArgs e)
 		{
 			Label clickedLabel = sender as Label;
-			prowadzacy[labels.IndexOf(clickedLabel)].Checked();
+			var instructor = (Instructor)people[labels.IndexOf(clickedLabel)];
 			this.Hide();
-			var godziny = new Godziny(prowadzacy);
+			var godziny = new Godziny(instructor);
 			godziny.Closed += (s, args) => this.Close();
 			godziny.Show();
 			godziny.Text = clickedLabel.Text;
