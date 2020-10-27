@@ -20,14 +20,14 @@ namespace Dziennik
 		List<Person> people = new List<Person>();
 		List<CheckBox> checkBoxes = new List<CheckBox>();
 		List<Absence> absences = new List<Absence>();
-		string connectionString;
+		Connection connection = new Connection();
 
 		public Godziny(Instructor instructor)
         {
             InitializeComponent();
 			button1.Click += new EventHandler(this.Checklist);
 
-			people = Connection.ReadDatabase(Program.Person.Student, instructor);
+			people = connection.ReadDatabase(Program.Person.Student, instructor);
 			CreateLabels();
 		}
 		private void CreateLabels()
@@ -72,7 +72,7 @@ namespace Dziennik
 				}
 				counter++;
 			}
-			Connection.WriteToDatabase(absences);
+			connection.WriteToDatabase(absences);
 		}
 	}
 }

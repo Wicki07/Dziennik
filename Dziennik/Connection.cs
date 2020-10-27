@@ -19,7 +19,6 @@ namespace Dziennik
 			{
 				case Program.Person.Instructor:
 					return "SELECT * FROM Nauczyciele";
-					break;
 				case Program.Person.Student:
 					{
 						return $"Select Uczniowie.Id, Imie, Nazwisko,Uczniowie.Poziom, Wiek, ZajeciaID From Uczniowie " +
@@ -27,18 +26,16 @@ namespace Dziennik
 								$"AND Zajecia.Godzina = '{ time.ToString("T")}'";
 
 					}
-					break;
 			}
 			return "";
 		}
-		public static List<Person> ReadDatabase(Program.Person person, Instructor instructor)
+		public List<Person> ReadDatabase(Program.Person person, Instructor instructor)
         {
-
 			var people = new List<Person>();
 			var con = new Connection();
 			var request = con.SQLRequest(person, instructor);
 			string result;
-			using (var connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;Database=dziennik;Integrated Security=True"))
+			using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
 			using (var adapter = new SqlDataAdapter(request, connection))
 			{
 				DataTable dataTable = new DataTable();
@@ -46,9 +43,32 @@ namespace Dziennik
 				result = string.Join(Environment.NewLine, dataTable.Rows.OfType<DataRow>().Select(x => string.Join(";", x.ItemArray)));
 				connection.Close();
 			}
-			Console.WriteLine(request);
-            switch (person)
-            {
+            return MakingList(person, result);
+        }
+		public void WriteToDatabase(List<Absence> absences)
+        {
+			using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+			{
+				String query = "INSERT INTO Nieobecnosci (UczenId,nData) VALUES (@id,@data)";
+				foreach (var absence in absences)
+				{
+					using (SqlCommand command = new SqlCommand(query, connection))
+					{
+						command.Connection.Open();
+						command.Parameters.AddWithValue("@id", absence.Id);
+						command.Parameters.AddWithValue("@data", absence.GetDate());
+						int result = command.ExecuteNonQuery();
+						connection.Close();
+
+					}
+				}
+			}
+		}
+		public List<Person> MakingList(Program.Person person, string result)
+        {
+			var people = new List<Person>();
+			switch (person)
+			{
 				case Program.Person.Instructor:
 					using (var reader = new StringReader(result))
 					{
@@ -73,29 +93,9 @@ namespace Dziennik
 					}
 					break;
 				default:
-                    break;
-            }
-            return people;
-        }
-		public static void WriteToDatabase(List<Absence> absences)
-        {
-			using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;Database=dziennik;Integrated Security=True"))
-			{
-				String query = "INSERT INTO Nieobecnosci (UczenId,nData) VALUES (@id,@data)";
-				foreach (var absence in absences)
-				{
-					using (SqlCommand command = new SqlCommand(query, connection))
-					{
-						command.Connection.Open();
-						command.Parameters.AddWithValue("@id", absence.Id);
-						command.Parameters.AddWithValue("@data", absence.GetDate());
-						int result = command.ExecuteNonQuery();
-						connection.Close();
-
-
-					}
-				}
+					break;
 			}
+			return people;
 		}
     }
 }
