@@ -7,9 +7,14 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Data;
+using Dapper;
 
 namespace Dziennik
 {
+    interface test
+    {
+
+    }
     class Connection
     {
 		private DateTime time = new DateTime(2020, 1, 1, 8, 0, 0);
@@ -29,23 +34,22 @@ namespace Dziennik
 			}
 			return "";
 		}
-		public List<Person> ReadDatabase(Program.Person person, Instructor instructor)
+        public DataTable ReadDatabase(Program.Person person, Instructor instructor)
         {
-			var people = new List<Person>();
-			var con = new Connection();
-			var request = con.SQLRequest(person, instructor);
-			string result;
+            var people = new List<Person>();
+            var con = new Connection();
+            var request = con.SQLRequest(person, instructor);
+			var dataTable = new DataTable();
 			using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
-			using (var adapter = new SqlDataAdapter(request, connection))
-			{
-				DataTable dataTable = new DataTable();
-				adapter.Fill(dataTable);
-				result = string.Join(Environment.NewLine, dataTable.Rows.OfType<DataRow>().Select(x => string.Join(";", x.ItemArray)));
+            using (var adapter = new SqlDataAdapter(request, connection))
+            {
+                adapter.Fill(dataTable);
+                Console.WriteLine(dataTable.Rows);
 				connection.Close();
-			}
-            return MakingList(person, result);
+            }
+			return dataTable;
         }
-		public void WriteToDatabase(List<Absence> absences)
+        public void WriteToDatabase(List<Absence> absences)
         {
 			using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
 			{
@@ -64,38 +68,50 @@ namespace Dziennik
 				}
 			}
 		}
-		public List<Person> MakingList(Program.Person person, string result)
+		public List<Person> MakingList(Program.Person person, Instructor instructor)
         {
-			var people = new List<Person>();
-			switch (person)
-			{
-				case Program.Person.Instructor:
-					using (var reader = new StringReader(result))
-					{
-						string line = "";
-						while ((line = reader.ReadLine()) != null)
-						{
-							string[] s = line.Split(';');
-							people.Add(new Instructor(int.Parse(s[0]), s[1] + " " + s[2]));
-						}
-					}
-					break;
-				case Program.Person.Student:
-					using (var reader = new StringReader(result))
-					{
-						string line = "";
-						while ((line = reader.ReadLine()) != null)
-						{
-							string[] s = line.Split(';');
-							people.Add(new Student(int.Parse(s[0]), s[1] + " " + s[2], int.Parse(s[3]), int.Parse(s[4]), int.Parse(s[5])));
-
-						}
-					}
-					break;
-				default:
-					break;
-			}
-			return people;
+            var people = new List<Person>();
+            DataTable dataTable;
+            switch (person)
+            {
+                case Program.Person.Instructor:
+                    dataTable = ReadDatabase(Program.Person.Instructor, instructor);
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        people.Add(new Instructor((int)row["id"], row["imie"].ToString() + " " + row["nazwisko"].ToString()));
+                    }
+                    break;
+                case Program.Person.Student:
+                    dataTable = ReadDatabase(Program.Person.Student, instructor);
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        people.Add(new Student((int)row["id"], row["imie"].ToString() + " " + row["nazwisko"].ToString(), (int)row["wiek"], (int)row["poziom"], (int)row["zajeciaid"]));
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return people;
 		}
+        public DataTable ReadDatabase1(Program.Person person, Instructor instructor)
+        {
+            var people = new List<Person>();
+            var con = new Connection();
+            var dataTable = new DataTable();
+            var request = "SELECT Id, Imie FROM Nauczyciele";
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                var instructors = connection.Query<Test>(request).ToList();
+                Console.WriteLine(connection.Query<Test>(request).Count());
+                Console.WriteLine(connection.Query<Test>(request).ToString());
+                connection.Close();
+            }
+            return dataTable;
+        }
+    }
+    class Test
+    {
+        public int Id;
+        public string Imie;
     }
 }

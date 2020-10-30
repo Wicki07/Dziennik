@@ -8,8 +8,8 @@ namespace Dziennik
 {
     public class Person
     {
-        protected int _id;
-        protected string _name;
+        protected int _id { get; set; }
+        protected string _name { get; set; }
 
         public Person()
         {
@@ -21,7 +21,12 @@ namespace Dziennik
             _name = name;
         }
 
-        public int Id 
+        public string Name
+        { 
+            get => _name; 
+            set => _name = value; 
+        }
+    public int Id 
         { 
             get => _id; 
             set => _id = value;

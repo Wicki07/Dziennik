@@ -8,9 +8,9 @@ namespace Dziennik
 {
     class Student : Person
     {
-        private int age;
-        private int level;
-        private int hour;
+        private int age { get; set; }
+        private int level { get; set; }
+        private int hour { get; set; }
 
         public Student(int id, string name, int age, int level, int hour) :base(id, name)
         {

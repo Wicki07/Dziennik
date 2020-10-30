@@ -27,7 +27,7 @@ namespace Dziennik
             InitializeComponent();
 			button1.Click += new EventHandler(this.Checklist);
 
-			people = connection.ReadDatabase(Program.Person.Student, instructor);
+			people = connection.MakingList(Program.Person.Student, instructor);
 			CreateLabels();
 		}
 		private void CreateLabels()

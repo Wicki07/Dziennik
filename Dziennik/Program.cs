@@ -20,10 +20,9 @@ namespace Dziennik
         [STAThread]
         static void Main()
         {
-            var person = new Person();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1(person));
+            Application.Run(new Form1());
         }
     }
 }

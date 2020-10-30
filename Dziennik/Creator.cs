@@ -11,9 +11,9 @@ namespace Dziennik
     class Creator
     {
 
-		public static List<Label> CreateLabels(Program.Person person, List<Person> _people)
+		public static List<Label> CreateLabels(List<Person> _people)
         {
-			var form1 = new Form1(person);
+			var form1 = new Form1();
 			var labels = new List<Label>();
 			var position = 100;
 			var counter = 0;
