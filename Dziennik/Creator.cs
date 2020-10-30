@@ -13,7 +13,7 @@ namespace Dziennik
 
 		public static List<Label> CreateLabels(List<Person> _people)
         {
-			var form1 = new Form1();
+			var form1 = new Main();
 			var labels = new List<Label>();
 			var position = 100;
 			var counter = 0;

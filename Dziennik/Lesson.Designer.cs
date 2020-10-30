@@ -2,7 +2,7 @@
 
 namespace Dziennik
 {
-    partial class Godziny
+    partial class Lesson
     {
         /// <summary>
         /// Required designer variable.

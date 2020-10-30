@@ -14,7 +14,7 @@ using System.Runtime;
 
 namespace Dziennik
 {
-    public partial class Godziny : Form
+    public partial class Lesson : Form
     {
 		List<Label> labels = new List<Label>();
 		List<Person> people = new List<Person>();
@@ -22,7 +22,7 @@ namespace Dziennik
 		List<Absence> absences = new List<Absence>();
 		Connection connection = new Connection();
 
-		public Godziny(Instructor instructor)
+		public Lesson(Instructor instructor)
         {
             InitializeComponent();
 			button1.Click += new EventHandler(this.Checklist);

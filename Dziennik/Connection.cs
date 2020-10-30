@@ -23,12 +23,12 @@ namespace Dziennik
 			switch (person)
 			{
 				case Program.Person.Instructor:
-					return "SELECT * FROM Nauczyciele";
+					return "SELECT * FROM Instructors";
 				case Program.Person.Student:
 					{
-						return $"Select Uczniowie.Id, Imie, Nazwisko,Uczniowie.Poziom, Wiek, ZajeciaID From Uczniowie " +
-								$"JOIN Zajecia ON ZajeciaID = Zajecia.Id AND Zajecia.ProwadzacyID = {instructor.Id} " +
-								$"AND Zajecia.Godzina = '{ time.ToString("T")}'";
+						return $"Select Students.Id, Name, Surname, Students.Level, Age, LessonsID From Students " +
+								$"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
+								$"AND Lessons.Hour = '{ time.ToString("T")}'";
 
 					}
 			}
@@ -53,7 +53,7 @@ namespace Dziennik
         {
 			using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
 			{
-				String query = "INSERT INTO Nieobecnosci (UczenId,nData) VALUES (@id,@data)";
+				String query = "INSERT INTO Absences (StudentId,nData) VALUES (@id,@data)";
 				foreach (var absence in absences)
 				{
 					using (SqlCommand command = new SqlCommand(query, connection))
@@ -78,14 +78,14 @@ namespace Dziennik
                     dataTable = ReadDatabase(Program.Person.Instructor, instructor);
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        people.Add(new Instructor((int)row["id"], row["imie"].ToString() + " " + row["nazwisko"].ToString()));
+                        people.Add(new Instructor((int)row["id"], row["name"].ToString() + " " + row["surname"].ToString()));
                     }
                     break;
                 case Program.Person.Student:
                     dataTable = ReadDatabase(Program.Person.Student, instructor);
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        people.Add(new Student((int)row["id"], row["imie"].ToString() + " " + row["nazwisko"].ToString(), (int)row["wiek"], (int)row["poziom"], (int)row["zajeciaid"]));
+                        people.Add(new Student((int)row["id"], row["name"].ToString() + " " + row["surname"].ToString(), (int)row["age"], (int)row["level"], (int)row["lessonsid"]));
                     }
                     break;
                 default:
@@ -98,20 +98,15 @@ namespace Dziennik
             var people = new List<Person>();
             var con = new Connection();
             var dataTable = new DataTable();
-            var request = "SELECT Id, Imie FROM Nauczyciele";
+            var request = "SELECT * FROM Instructors";
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
-                var instructors = connection.Query<Test>(request).ToList();
-                Console.WriteLine(connection.Query<Test>(request).Count());
-                Console.WriteLine(connection.Query<Test>(request).ToString());
+                var instructors = connection.Query<Instructor>(request).ToList();
+                Console.WriteLine(connection.Query<Instructor>(request).Count());
+                Console.WriteLine(connection.Query<Instructor>(request).ToString());
                 connection.Close();
             }
             return dataTable;
         }
-    }
-    class Test
-    {
-        public int Id;
-        public string Imie;
     }
 }

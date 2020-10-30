@@ -14,12 +14,12 @@ using System.Data.SqlClient;
 
 namespace Dziennik
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
 		List<Label> labels = new List<Label>();
 		List<Person> people = new List<Person>();
 		Connection connection = new Connection();
-        public Form1()
+        public Main()
         {
             InitializeComponent();
 			people = connection.MakingList(Program.Person.Instructor, new Instructor());
@@ -56,7 +56,7 @@ namespace Dziennik
 			Label clickedLabel = sender as Label;
 			var instructor = (Instructor)people[labels.IndexOf(clickedLabel)];
 			this.Hide();
-			var godziny = new Godziny(instructor);
+			var godziny = new Lesson(instructor);
 			godziny.Closed += (s, args) => this.Close();
 			godziny.Show();
 			godziny.Text = clickedLabel.Text;

@@ -1,6 +1,6 @@
 ﻿namespace Dziennik
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         /// Wymagana zmienna projektanta.
