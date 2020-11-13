@@ -10,11 +10,12 @@ namespace Dziennik
     {
 
         private bool check;
+        protected string surname { get; set; }
         public Instructor()
         {
 
         }
-        public Instructor(int id, string name) :base(id, name)
+        public Instructor(int id, string name, string surname ) :base(id, name, surname)
         {
             this.check = false;
         }

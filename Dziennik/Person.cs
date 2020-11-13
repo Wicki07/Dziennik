@@ -10,6 +10,7 @@ namespace Dziennik
     {
         protected int _id { get; set; }
         protected string _name { get; set; }
+        protected string _surname { get; set; }
 
         public Person()
         {
@@ -19,6 +20,12 @@ namespace Dziennik
         {
             _id = id;
             _name = name;
+        }
+        public Person(int id, string name, string surname)
+        {
+            _id = id;
+            _name = name;
+            _surname = surname;
         }
 
         public string Name
@@ -33,7 +40,7 @@ namespace Dziennik
         }
         public override string ToString()
         {
-            return this._name;
+            return this._name + this._surname;
         }
     }
 }

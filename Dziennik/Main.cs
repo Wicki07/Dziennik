@@ -22,8 +22,9 @@ namespace Dziennik
         public Main()
         {
             InitializeComponent();
-			people = connection.MakingList(Program.Person.Instructor, new Instructor());
-			connection.ReadDatabase1(Program.Person.Instructor, new Instructor());
+			var dataTable = connection.ReadDatabase1(Program.Person.Instructor, new Instructor());
+			//people = connection.MakingList(Program.Person.Instructor, dataTable);
+			people = connection.ReadDatabase();
 			CreateLabels();
 		}
 
