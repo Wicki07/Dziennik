@@ -33,14 +33,19 @@ namespace Dziennik
             get => _name; 
             set => _name = value; 
         }
-    public int Id 
+        public string Surname
+        {
+            get => _surname;
+            set => _surname = value;
+        }
+        public int Id 
         { 
             get => _id; 
             set => _id = value;
         }
         public override string ToString()
         {
-            return this._name + this._surname;
+            return this._name + " " +  this._surname;
         }
     }
 }

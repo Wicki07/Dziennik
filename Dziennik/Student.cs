@@ -11,6 +11,7 @@ namespace Dziennik
         private int age { get; set; }
         private int level { get; set; }
         private int hour { get; set; }
+        private int numbersAbsences { get; set; }
 
         public Student(int id, string name, int age, int level, int hour) :base(id, name)
         {
@@ -18,7 +19,14 @@ namespace Dziennik
             this.level = level;
             this.hour = hour;
         }
-
+        public Student(int id, string name, string surname, int numbersAbsences) : base(id, name, surname)
+        {
+            this.numbersAbsences = numbersAbsences;
+        }
+        public override string ToString()
+        {
+            return Name + " " + Surname + " Liczba nieobecności: " + numbersAbsences;
+        }
 
     }
 }

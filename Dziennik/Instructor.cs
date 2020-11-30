@@ -10,7 +10,6 @@ namespace Dziennik
     {
 
         private bool check;
-        protected string surname { get; set; }
         public Instructor()
         {
 

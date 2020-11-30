@@ -19,12 +19,14 @@ namespace Dziennik
 		List<Label> labels = new List<Label>();
 		List<Person> people = new List<Person>();
 		Connection connection = new Connection();
+
         public Main()
         {
             InitializeComponent();
 			var dataTable = connection.ReadDatabase1(Program.Person.Instructor, new Instructor());
 			//people = connection.MakingList(Program.Person.Instructor, dataTable);
 			people = connection.ReadDatabase();
+
 			CreateLabels();
 		}
 

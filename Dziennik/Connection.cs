@@ -129,11 +129,33 @@ namespace Dziennik
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
                 var instructors = connection.Query<Instructor>(request).ToList();
-                Console.WriteLine(connection.Query<Instructor>(request).Count());
-                Console.WriteLine(connection.Query<Instructor>(request).ToString());
                 connection.Close();
             }
             return dataTable;
+        }
+        public List<Student> ReadDatabaseAbsent()
+        {
+            var students = new List<Student>();
+            var request = "Select Students.Id, Name, Surname, COUNT(Name) AS numbersAbsences From Students JOIN Absences " +
+                            "ON Absences.StudentId = Students.Id " +
+                            "GROUP BY Students.Surname, Students.Name, Students.Id";
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                students = connection.Query<Student>(request).ToList();
+                connection.Close();
+            }
+            return students;
+        }
+        public void RemoveAbsent(int id)
+        {
+            string queryString = $"DELETE TOP (1) FROM Absences Where Absences.StudentId = {id}";
+
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

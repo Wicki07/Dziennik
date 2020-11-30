@@ -21,6 +21,7 @@ namespace Dziennik
 		List<CheckBox> checkBoxes = new List<CheckBox>();
 		List<Absence> absences = new List<Absence>();
 		Connection connection = new Connection();
+		List<Student> s = new List<Student>();
 
 		public Lesson(Instructor instructor)
         {
@@ -28,6 +29,11 @@ namespace Dziennik
 			button1.Click += new EventHandler(this.Checklist);
 			var dataTable = connection.ReadDatabase(Program.Person.Student, instructor);
 			people = connection.MakingList(Program.Person.Student, dataTable);
+			s = connection.ReadDatabaseAbsent();
+			foreach(var studnets in s)
+            {
+				Absent.Items.Add(studnets);
+            }
 			CreateLabels();
 		}
 		private void CreateLabels()
@@ -47,7 +53,7 @@ namespace Dziennik
 				label.Margin = new Padding(2, 0, 2, 0);
 				label.Size = new Size(186, 40);
 				label.TabIndex = 5;
-				label.Text = people[counter].ToString();
+				label.Text = people[counter].Name + " " + people[counter].Surname;
 				this.Controls.Add(label);
 				checkBoxes.Add(new CheckBox());
 				checkBoxes[counter].AutoSize = true;
@@ -72,7 +78,11 @@ namespace Dziennik
 				}
 				counter++;
 			}
+			foreach (Student itemChecked in Absent.CheckedItems)
+			{
+				connection.RemoveAbsent(itemChecked.Id);
+			}
 			connection.WriteToDatabase(absences);
 		}
-	}
+    }
 }
