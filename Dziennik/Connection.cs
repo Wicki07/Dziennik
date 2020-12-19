@@ -18,7 +18,7 @@ namespace Dziennik
     class Connection
     {
         private DateTime time = new DateTime(2020, 1, 1, 8, 0, 0);
-        private string SQLRequest(Program.Person person, Instructor instructor)
+        private string SQLRequest(Program.Person person, Instructor instructor, string day)
         {
             switch (person)
             {
@@ -28,23 +28,21 @@ namespace Dziennik
                     {
                         return $"Select Students.Id, Name, Surname, Students.Level, Age, LessonsID From Students " +
                                 $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
-                                $"AND Lessons.Hour = '{ time.ToString("T")}'";
+                                $"AND Lessons.Day = '{ day}' order by Lessons.Hour";
 
                     }
             }
             return "";
         }
-        public DataTable ReadDatabase(Program.Person person, Instructor instructor)
+        public DataTable ReadDatabase(Program.Person person, Instructor instructor, string day)
         {
-            var people = new List<Person>();
             var con = new Connection();
-            var request = con.SQLRequest(person, instructor);
+            var request = con.SQLRequest(person, instructor, day);
             var dataTable = new DataTable();
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             using (var adapter = new SqlDataAdapter(request, connection))
             {
                 adapter.Fill(dataTable);
-                Console.WriteLine(dataTable.Rows);
                 connection.Close();
             }
             return dataTable;
@@ -155,6 +153,24 @@ namespace Dziennik
                 SqlCommand command = new SqlCommand(queryString, connection);
                 connection.Open();
                 command.ExecuteNonQuery();
+            }
+        }
+        public TimeSpan GetHour(int id)
+        {
+            var request = $"SELECT Hour From Lessons where Lessons.Id = (SELECT LessonsID From Students where Students.Id = {id})";
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                return connection.ExecuteScalar<TimeSpan>(request);
+            }
+        }
+
+        public List<String> SetComboBoxItems(int id)
+        {
+            
+            var request = $"SELECT Day From Lessons where Lessons.InstructorID = {id} Group by Day";
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                 return connection.Query<String>(request).ToList();
             }
         }
     }
