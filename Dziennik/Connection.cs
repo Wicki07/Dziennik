@@ -69,6 +69,7 @@ namespace Dziennik
         public List<Person> MakingList(Program.Person person, DataTable dataTable)
         {
             var people = new List<Person>();
+
             switch (person)
             {
                 case Program.Person.Instructor:
@@ -80,7 +81,7 @@ namespace Dziennik
                 case Program.Person.Student:
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        people.Add(new Student((int)row["id"], row["name"].ToString() + " " + row["surname"].ToString(), (int)row["age"], (int)row["level"], (int)row["lessonsid"]));
+                        people.Add(new Student((int)row["id"], row["name"].ToString(), row["surname"].ToString(), (int)row["age"], (int)row["level"], (int)row["lessonsid"]));
                     }
                     break;
                 default:
@@ -92,6 +93,7 @@ namespace Dziennik
         {
             var people = new List<Person>();
             var request = "SELECT * FROM Instructors";
+
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
                 var instructors = connection.Query<Instructor>(request).ToList();
@@ -105,15 +107,15 @@ namespace Dziennik
 
             return people;
         }
-        public List<Student> ReadDatabase(Instructor instructor)
+        public List<Student> ReadDatabase(Instructor instructor, string day)
         {
             var students = new List<Student>();
-            var request = $"Select Students.Id, Name, Surname, Students.Level, Age, LessonsID From Students " +
+            var request = $"Select Students.Id AS Id, Name, Surname, Age, Students.Level AS Level, LessonsID AS Hour From Students " +
                                 $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
-                                $"AND Lessons.Hour = '{ time.ToString("T")}'";
+                                $"AND Lessons.Hour = '{ day}'";
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
-                students = connection.Query<Student>(request).ToList();
+                students = connection.Query<Student>(request).Select(student => new Student(student.Id, student.Name, student.Surname, student.Age, student.Level, student.Hour)).ToList();
                 connection.Close();
             }
             return students;

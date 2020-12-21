@@ -17,7 +17,7 @@ namespace Dziennik
     public partial class Lesson : Form
     {
 		List<Label> labels = new List<Label>();
-		List<Person> people = new List<Person>();
+		List<Student> people = new List<Student>();
 		List<CheckBox> checkBoxes = new List<CheckBox>();
 		List<Absence> absences = new List<Absence>();
 		Connection connection = new Connection();
@@ -29,13 +29,15 @@ namespace Dziennik
 		public Lesson(Instructor instructor)
         {
             InitializeComponent();
+
 			button1.Click += new EventHandler(this.Checklist);
 			_instructor = instructor;
+			s = connection.ReadDatabaseAbsent();
+
 			foreach (var day in connection.SetComboBoxItems(instructor.Id))
 			{
 				comboBox1.Items.Add(day);
 			}
-			s = connection.ReadDatabaseAbsent();
 			foreach(var studnets in s)
             {
 				absent.Items.Add(studnets);
@@ -47,7 +49,9 @@ namespace Dziennik
 			int counter = 0;
 			int counterLabels = 0;
 			bool check = true;
+
 			labels.Clear();
+
 			foreach (Student student in people)
 			{
 
@@ -77,6 +81,7 @@ namespace Dziennik
 				counter++;
 
 			}
+
 		Test:
 			counter = 0;
 			label3.Text = comboBox1.SelectedItem.ToString() + " " + connection.GetHour(people[begginingId].Id).ToString(@"h\:mm");
@@ -99,6 +104,7 @@ namespace Dziennik
 				checkBoxes[counter].UseVisualStyleBackColor = true;
 				checkBoxes[counter].CheckedChanged += new EventHandler(CheckIfchanged);
 				this.Controls.Add(checkBoxes[counter]);
+
 				counter++;
 				position += 50;
 				counterLabels++;
@@ -106,8 +112,10 @@ namespace Dziennik
 		}
 		private void Checklist(object sender, EventArgs e)
 		{
-			absences.Clear();
 			var counter = begginingId;
+
+			absences.Clear();
+
 			foreach (CheckBox checkBox in checkBoxes)
 			{
 				if (checkBox.Checked)
@@ -133,6 +141,11 @@ namespace Dziennik
 		
 		private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
+            //var dataTable = connection.ReadDatabase(Program.Person.Student, _instructor, comboBox1.SelectedItem.ToString());
+            //people = connection.MakingList(Program.Person.Student, dataTable);
+            people = connection.ReadDatabase(_instructor, comboBox1.SelectedItem.ToString());
+            lessonId = ((Student)people[0]).Hour;
+
 			foreach (Label label in labels)
 			{
 				label.Text = "";
@@ -143,9 +156,7 @@ namespace Dziennik
 				checkBox.Visible = false;
 				checkBox.Refresh();
 			}
-			var dataTable = connection.ReadDatabase(Program.Person.Student, _instructor, comboBox1.SelectedItem.ToString());
-			people = connection.MakingList(Program.Person.Student, dataTable);
-			lessonId = ((Student)people[0]).Hour;
+
 			checkBoxes.Clear();
 			labels.Clear();
 			label3.Text = comboBox1.SelectedItem.ToString() + " " + connection.GetHour(people[0].Id).ToString(@"h\:mm");
@@ -153,7 +164,6 @@ namespace Dziennik
 			label1.Visible = true;
 			label2.Visible = true;
 			absent.Visible = true;
-			
 			CreateLabels();
 		}
 

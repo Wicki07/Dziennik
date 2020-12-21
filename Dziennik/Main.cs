@@ -23,10 +23,7 @@ namespace Dziennik
         public Main()
         {
             InitializeComponent();
-			var dataTable = connection.ReadDatabase1(Program.Person.Instructor, new Instructor());
-			//people = connection.MakingList(Program.Person.Instructor, dataTable);
 			people = connection.ReadDatabase();
-
 			CreateLabels();
 		}
 
@@ -57,12 +54,14 @@ namespace Dziennik
 		public void ProwadzacyChoice(object sender, EventArgs e)
 		{
 			Label clickedLabel = sender as Label;
+
 			var instructor = (Instructor)people[labels.IndexOf(clickedLabel)];
+
 			this.Hide();
-			var godziny = new Lesson(instructor);
-			godziny.Closed += (s, args) => this.Close();
-			godziny.Show();
-			godziny.Text = clickedLabel.Text;
+			var lessons = new Lesson(instructor);
+			lessons.Closed += (s, args) => this.Close();
+			lessons.Show();
+			lessons.Text = clickedLabel.Text;
 		}
 
     }

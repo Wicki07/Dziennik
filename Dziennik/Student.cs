@@ -13,7 +13,7 @@ namespace Dziennik
         private int _hour { get; set; }
         private int numbersAbsences { get; set; }
 
-        public Student(int id, string name, int age, int level, int hour) :base(id, name)
+        public Student(int id, string name, string surname, int age, int level, int hour) :base(id, name, surname)
         {
             this.age = age;
             this.level = level;
@@ -31,6 +31,16 @@ namespace Dziennik
         {
             get => _hour;
             set => _hour = value;
+        }
+        public int Level
+        {
+            get => level;
+            set => level = value;
+        }
+        public int Age
+        {
+            get => age;
+            set => age = value;
         }
 
     }
