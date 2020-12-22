@@ -17,36 +17,7 @@ namespace Dziennik
     }
     class Connection
     {
-        private DateTime time = new DateTime(2020, 1, 1, 8, 0, 0);
-        private string SQLRequest(Program.Person person, Instructor instructor, string day)
-        {
-            switch (person)
-            {
-                case Program.Person.Instructor:
-                    return "SELECT * FROM Instructors";
-                case Program.Person.Student:
-                    {
-                        return $"Select Students.Id, Name, Surname, Students.Level, Age, LessonsID From Students " +
-                                $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
-                                $"AND Lessons.Day = '{ day}' order by Lessons.Hour";
-
-                    }
-            }
-            return "";
-        }
-        public DataTable ReadDatabase(Program.Person person, Instructor instructor, string day)
-        {
-            var con = new Connection();
-            var request = con.SQLRequest(person, instructor, day);
-            var dataTable = new DataTable();
-            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
-            using (var adapter = new SqlDataAdapter(request, connection))
-            {
-                adapter.Fill(dataTable);
-                connection.Close();
-            }
-            return dataTable;
-        }
+ 
         public void WriteToDatabase(List<Absence> absences)
         {
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
@@ -66,29 +37,7 @@ namespace Dziennik
                 }
             }
         }
-        public List<Person> MakingList(Program.Person person, DataTable dataTable)
-        {
-            var people = new List<Person>();
 
-            switch (person)
-            {
-                case Program.Person.Instructor:
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        people.Add(new Instructor((int)row["id"], row["name"].ToString(), row["surname"].ToString()));
-                    }
-                    break;
-                case Program.Person.Student:
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        people.Add(new Student((int)row["id"], row["name"].ToString(), row["surname"].ToString(), (int)row["age"], (int)row["level"], (int)row["lessonsid"]));
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return people;
-        }
         public List<Person> ReadDatabase()
         {
             var people = new List<Person>();
@@ -110,28 +59,19 @@ namespace Dziennik
         public List<Student> ReadDatabase(Instructor instructor, string day)
         {
             var students = new List<Student>();
+            var parameters = new DynamicParameters();
+            parameters.Add("@Id", instructor.Id);
+            parameters.Add("@Day", day);
             var request = $"Select Students.Id AS Id, Name, Surname, Age, Students.Level AS Level, LessonsID AS Hour From Students " +
-                                $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
-                                $"AND Lessons.Hour = '{ day}'";
+                                $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = @Id " +
+                                $"AND Lessons.Day = 'Sobota' order by Lessons.Hour";
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
-                students = connection.Query<Student>(request).Select(student => new Student(student.Id, student.Name, student.Surname, student.Age, student.Level, student.Hour)).ToList();
+                Console.WriteLine(connection.Query<Student>(request, parameters).ToList());
+                students = connection.Query<Student>(request, parameters).ToList();
                 connection.Close();
             }
             return students;
-        }
-        public DataTable ReadDatabase1(Program.Person person, Instructor instructor)
-        {
-            var people = new List<Person>();
-            var con = new Connection();
-            var dataTable = new DataTable();
-            var request = "SELECT * FROM Instructors";
-            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
-            {
-                var instructors = connection.Query<Instructor>(request).ToList();
-                connection.Close();
-            }
-            return dataTable;
         }
         public List<Student> ReadDatabaseAbsent()
         {
@@ -139,6 +79,7 @@ namespace Dziennik
             var request = "Select Students.Id, Name, Surname, COUNT(Name) AS numbersAbsences From Students JOIN Absences " +
                             "ON Absences.StudentId = Students.Id " +
                             "GROUP BY Students.Surname, Students.Name, Students.Id";
+
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
             {
                 students = connection.Query<Student>(request).ToList();
@@ -177,3 +118,67 @@ namespace Dziennik
         }
     }
 }
+//public List<Person> MakingList(Program.Person person, DataTable dataTable)
+//{
+//    var people = new List<Person>();
+
+//    switch (person)
+//    {
+//        case Program.Person.Instructor:
+//            foreach (DataRow row in dataTable.Rows)
+//            {
+//                people.Add(new Instructor((int)row["id"], row["name"].ToString(), row["surname"].ToString()));
+//            }
+//            break;
+//        case Program.Person.Student:
+//            foreach (DataRow row in dataTable.Rows)
+//            {
+//                people.Add(new Student((int)row["id"], row["name"].ToString(), row["surname"].ToString(), (int)row["age"], (int)row["level"], (int)row["lessonsid"]));
+//            }
+//            break;
+//        default:
+//            break;
+//    }
+//    return people;
+//}
+//private string SQLRequest(Program.Person person, Instructor instructor, string day)
+//{
+//    switch (person)
+//    {
+//        case Program.Person.Instructor:
+//            return "SELECT * FROM Instructors";
+//        case Program.Person.Student:
+//            {
+//                return $"Select Students.Id, Name, Surname, Students.Level, Age, LessonsID From Students " +
+//                        $"JOIN Lessons ON LessonsID = Lessons.Id AND Lessons.InstructorID = {instructor.Id} " +
+//                        $"AND Lessons.Day = '{ day}' order by Lessons.Hour";
+
+//            }
+//    }
+//    return "";
+//}
+//public DataTable ReadDatabase(Program.Person person, Instructor instructor, string day)
+//{
+//    var con = new Connection();
+//    var request = con.SQLRequest(person, instructor, day);
+//    var dataTable = new DataTable();
+//    using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+//    using (var adapter = new SqlDataAdapter(request, connection))
+//    {
+//        adapter.Fill(dataTable);
+//        connection.Close();
+//    }
+//    return dataTable;
+//}
+//public DataTable ReadDatabase1(Program.Person person, Instructor instructor)
+//{
+//    var dataTable = new DataTable();
+//    var request = "SELECT * FROM Instructors";
+
+//    using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+//    {
+//        var instructors = connection.Query<Instructor>(request).ToList();
+//        connection.Close();
+//    }
+//    return dataTable;
+//}
