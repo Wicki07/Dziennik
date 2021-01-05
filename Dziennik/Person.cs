@@ -12,15 +12,6 @@ namespace Dziennik
         protected string _name { get; set; }
         protected string _surname { get; set; }
 
-        public Person()
-        {
-
-        }
-        public Person(int id, string name)
-        {
-            _id = id;
-            _name = name;
-        }
         public Person(int id, string name, string surname)
         {
             _id = id;

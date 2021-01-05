@@ -44,14 +44,14 @@ namespace Dziennik
 				label.Size = new Size(186, 50);
 				label.TabIndex = 5;
 				label.Text = people[counter].ToString();
-				label.Click += new EventHandler(this.ProwadzacyChoice);
+				label.Click += new EventHandler(this.InstructorChoice);
 				counter++;
 				position += 60;
 				this.Controls.Add(label);
 			}
 		}
 
-		public void ProwadzacyChoice(object sender, EventArgs e)
+		public void InstructorChoice(object sender, EventArgs e)
 		{
 			Label clickedLabel = sender as Label;
 
@@ -62,6 +62,7 @@ namespace Dziennik
 			lessons.Closed += (s, args) => this.Close();
 			lessons.Show();
 			lessons.Text = clickedLabel.Text;
+
 		}
 
     }

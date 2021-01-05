@@ -30,7 +30,7 @@ namespace Dziennik
 				label.Size = new Size(186, 50);
 				label.TabIndex = 5;
 				label.Text = _people[counter].ToString();
-				label.Click += new EventHandler(form1.ProwadzacyChoice);
+				label.Click += new EventHandler(form1.InstructorChoice);
 				counter++;
 				position += 60;
                 //Form1.Controls.Add(label);

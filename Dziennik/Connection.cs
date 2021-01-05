@@ -11,10 +11,6 @@ using Dapper;
 
 namespace Dziennik
 {
-    interface test
-    {
-
-    }
     class Connection
     {
  
